@@ -1,23 +1,6 @@
 "use client";
 import React, { useState } from "react";
 
-interface Recipe {
-  title: string;
-  ingredients: string[];
-  instructions: string[];
-  prepTime: string;
-  cookTime: string;
-  servings: number;
-  difficulty: string;
-  tags: string[];
-}
-
-interface DeepseekResponse {
-  recipes: Recipe[];
-  summary: string;
-  highlights: string[];
-}
-
 export default function DeepseekTestPage() {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState<string | null>(null);
