@@ -1,6 +1,19 @@
 "use client";
 import React, { useState } from "react";
 
+interface ErrorWithMessage {
+  message: string;
+}
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
+}
+
 export default function DeepseekTestPage() {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState<string | null>(null);
@@ -26,8 +39,8 @@ export default function DeepseekTestPage() {
       } else {
         setError(data.error ? JSON.stringify(data.error) : "Unknown error");
       }
-    } catch (err: any) {
-      setError(err.message || "Request failed");
+    } catch (err: unknown) {
+      setError(isErrorWithMessage(err) ? err.message : "Request failed");
     } finally {
       setLoading(false);
     }

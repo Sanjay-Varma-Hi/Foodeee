@@ -9,7 +9,7 @@ import UserInstruction from '@/models/UserInstruction';
 export async function GET() {
   const session = await getServerSession(authOptions);
 
-  const userId = session?.user && (session.user as any).id;
+  const userId = session?.user?.id;
   const userEmail = session?.user?.email;
   const userName = session?.user?.name;
   const userImage = session?.user?.image;

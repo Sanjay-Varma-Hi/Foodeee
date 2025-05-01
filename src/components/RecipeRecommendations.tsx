@@ -1,9 +1,8 @@
 'use client';
                                                                                   
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import React from 'react';
 
 interface Recipe {
@@ -15,7 +14,10 @@ interface Recipe {
   cookTime: number;
   difficulty: 'easy' | 'medium' | 'hard';
   matchScore: number;
-  instructions?: string[];
+  instructions?: Array<{
+    timestamp: string;
+    step: string;
+  }>;
 }
 
 interface Ingredient {
@@ -27,19 +29,23 @@ interface Ingredient {
   addedAt: Date | string;
 }
 
+interface UserProfile {
+  preferences?: {
+    dietaryRestrictions?: string[];
+    favoriteCuisines?: string[];
+    cookingSkillLevel?: string;
+  };
+  pantry?: Ingredient[];
+}
+
 export default function RecipeRecommendations() {
-  const { data: session } = useSession();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pantryIngredients, setPantryIngredients] = useState<Ingredient[]>([]);
   const [pantryChecked, setPantryChecked] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const userProfileRef = useRef<any>(null);
-  const deepseekRecipesRef = useRef<any>(null);
-  const [deepseekRawContent, setDeepseekRawContent] = useState<string | null>(null);
-  const [deepseekSummary, setDeepseekSummary] = useState<string | null>(null);
-  const [deepseekHighlights, setDeepseekHighlights] = useState<string | null>(null);
+  const userProfileRef = useRef<UserProfile | null>(null);
   const [deepseekHighlightsList, setDeepseekHighlightsList] = useState<string[]>([]);
 
   // Load pantry ingredients from localStorage
@@ -49,8 +55,8 @@ export default function RecipeRecommendations() {
       try {
         const parsedIngredients = JSON.parse(savedIngredients);
         setPantryIngredients(parsedIngredients);
-      } catch (err) {
-        console.error('Failed to parse saved ingredients', err);
+      } catch {
+        console.error('Failed to parse saved ingredients');
       }
     }
     setPantryChecked(true);
@@ -63,8 +69,8 @@ export default function RecipeRecommendations() {
       if (savedIngredients) {
         try {
           setPantryIngredients(JSON.parse(savedIngredients));
-        } catch (err) {
-          console.error('Failed to parse saved ingredients', err);
+        } catch {
+          console.error('Failed to parse saved ingredients');
         }
       } else {
         setPantryIngredients([]);
@@ -106,20 +112,17 @@ export default function RecipeRecommendations() {
             highlightsList = highlightsBlock
               .split('\n')
               .map((line: string) => line.trim())
-              .filter((line: string) => (line as string).startsWith('-'))
-              .map((line: string) => (line as string).replace(/^[-•]\s*/, ''));
+              .filter((line: string) => line.startsWith('-'))
+              .map((line: string) => line.replace(/^[-•]\s*/, ''));
           }
           setDeepseekHighlightsList(highlightsList);
-          setDeepseekRawContent(null);
           setRecipes(Array.isArray(data.recipes) ? data.recipes : []);
         } else {
           setDeepseekHighlightsList([]);
-          setDeepseekRawContent(null);
           setRecipes([]);
         }
-      } catch (err) {
+      } catch {
         setDeepseekHighlightsList([]);
-        setDeepseekRawContent(null);
         setRecipes([]);
         setError('Failed to load cached recommendations');
       } finally {
@@ -146,7 +149,7 @@ export default function RecipeRecommendations() {
         setLoading(false);
         return;
       }
-    } catch (e) {
+    } catch {
       userProfileRef.current = null;
       setError('Error fetching user profile');
       setLoading(false);
@@ -164,7 +167,7 @@ export default function RecipeRecommendations() {
         });
         const data = await res.json();
         if (data.success) {
-          let content = data.data?.choices?.[0]?.message?.content;
+          const content = data.data?.choices?.[0]?.message?.content;
           // Try to extract the JSON part if possible
           let recipesJson = content;
           const jsonStart = content.indexOf('[');
@@ -172,7 +175,7 @@ export default function RecipeRecommendations() {
           if (jsonStart !== -1 && jsonEnd !== -1) {
             try {
               recipesJson = JSON.parse(content.slice(jsonStart, jsonEnd));
-            } catch (err) {
+            } catch {
               // If parsing fails, keep as string
             }
           }
@@ -187,30 +190,24 @@ export default function RecipeRecommendations() {
             const cacheRes = await fetch('/api/deepseek-cache');
             const cacheData = await cacheRes.json();
             if (cacheData.found) {
-              setDeepseekRawContent(cacheData.response);
               setRecipes(Array.isArray(cacheData.recipes) ? cacheData.recipes : []);
             } else {
-              setDeepseekRawContent(null);
               setRecipes([]);
             }
-          } catch (err) {
-            setDeepseekRawContent(null);
+          } catch {
             setRecipes([]);
             setError('Failed to load cached recommendations');
           }
         } else {
-          setDeepseekRawContent(null);
           setRecipes([]);
           setError('DeepSeek error');
         }
-      } catch (err) {
-        setDeepseekRawContent(null);
+      } catch {
         setRecipes([]);
         setError('Error calling DeepSeek');
       }
     } else {
       setRecipes([]);
-      setDeepseekRawContent(null);
     }
     setLoading(false);
   };
@@ -305,17 +302,15 @@ export default function RecipeRecommendations() {
                 <div className="mb-2">
                   <h4 className="text-sm font-semibold text-gray-900 mb-1">Ingredients:</h4>
                   <ul className="list-disc list-inside text-gray-700 text-sm">
-                    {Array.isArray(recipe.ingredients) && recipe.ingredients.map((ingredient: any, idx: number) => (
-                      <li key={idx}>
-                        {typeof ingredient === 'string' ? ingredient : `${ingredient.name}${ingredient.quantity ? ` (${ingredient.quantity}${ingredient.unit ? ' ' + ingredient.unit : ''})` : ''}`}
-                      </li>
+                    {Array.isArray(recipe.ingredients) && recipe.ingredients.map((ingredient: string, idx: number) => (
+                      <li key={idx}>{ingredient}</li>
                     ))}
                   </ul>
                 </div>
                 <div className="mb-2">
                   <h4 className="text-sm font-semibold text-gray-900 mb-1">How to Cook:</h4>
                   <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1">
-                    {Array.isArray(recipe.instructions) && recipe.instructions.map((instruction: any, idx: number) => (
+                    {Array.isArray(recipe.instructions) && recipe.instructions.map((instruction, idx: number) => (
                       <li key={idx}>
                         <span className="font-mono text-blue-600 mr-2">{instruction.timestamp}</span>
                         <span>{instruction.step}</span>
@@ -342,10 +337,11 @@ export default function RecipeRecommendations() {
             </button>
             <div className="mb-4 mt-6">
               <div className="relative w-full h-56 rounded overflow-hidden mb-4">
-                <img
+                <Image
                   src={selectedRecipe.image}
                   alt={selectedRecipe.title}
-                  className="object-cover w-full h-full"
+                  fill
+                  className="object-cover"
                 />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedRecipe.title}</h2>
@@ -357,7 +353,7 @@ export default function RecipeRecommendations() {
               </div>
               <h4 className="text-md font-semibold text-gray-900 mt-4 mb-1">Ingredients:</h4>
               <ul className="list-disc list-inside text-gray-700 mb-4">
-                {selectedRecipe.ingredients.map((ingredient, idx) => (
+                {selectedRecipe.ingredients.map((ingredient: string, idx: number) => (
                   <li key={idx}>{ingredient}</li>
                 ))}
               </ul>
@@ -366,7 +362,7 @@ export default function RecipeRecommendations() {
                 <>
                   <h4 className="text-md font-semibold text-gray-900 mt-4 mb-1">How to Cook:</h4>
                   <div className="space-y-2 text-gray-700">
-                    {selectedRecipe.instructions.map((instruction: any, idx: number) => (
+                    {selectedRecipe.instructions.map((instruction, idx: number) => (
                       <div key={idx} className="flex items-start">
                         <span className="inline-block w-16 flex-shrink-0 font-mono text-blue-600">
                           {instruction.timestamp}

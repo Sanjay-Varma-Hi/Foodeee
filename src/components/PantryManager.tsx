@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 
 interface Ingredient {
@@ -29,8 +28,6 @@ export default function PantryManager() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(false);
   const [textInput, setTextInput] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [instructions, setInstructions] = useState<UserInstructions>({
     dietaryPreferences: [],
@@ -143,80 +140,6 @@ export default function PantryManager() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleImageUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!imageFile) {
-      setError('Please select an image to upload');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // 1. Process the image
-      const formData = new FormData();
-      formData.append('image', imageFile);
-      
-      const processResponse = await fetch('/api/pantry/process-image', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!processResponse.ok) {
-        const errorData = await processResponse.json();
-        throw new Error(errorData.error || 'Failed to process image');
-      }
-      
-      const processData = await processResponse.json();
-      
-      // Set default unit to 'count' if quantity exists but unit is not specified
-      const processedIngredients = processData.ingredients.map((ingredient: Ingredient) => {
-        if (ingredient.quantity && !ingredient.unit) {
-          return { ...ingredient, unit: 'count' };
-        }
-        return ingredient;
-      });
-      
-      // 2. Add the processed ingredients to the database
-      const addResponse = await fetch('/api/pantry/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ingredients: processedIngredients }),
-      });
-      
-      if (!addResponse.ok) {
-        const errorData = await addResponse.json();
-        throw new Error(errorData.error || 'Failed to save ingredients');
-      }
-      
-      // 3. Refresh the ingredients list
-      await fetchIngredients();
-      setImageFile(null);
-      setImagePreview(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process image');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImageFile(file);
-    
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
   const removeIngredient = async (id: string) => {

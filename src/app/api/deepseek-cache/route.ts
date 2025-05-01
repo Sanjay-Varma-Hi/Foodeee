@@ -5,7 +5,7 @@ import clientPromise from '@/lib/db/clientPromise';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  const userId = session?.user && (session.user as any).id;
+  const userId = session?.user?.id;
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -24,7 +24,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  const userId = session?.user && (session.user as any).id;
+  const userId = session?.user?.id;
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

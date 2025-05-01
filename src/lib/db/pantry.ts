@@ -45,7 +45,9 @@ export async function updateIngredient(id: string, userId: string, updates: Part
   const client = await clientPromise;
   const collection = client.db().collection('pantryItems');
   
-  const { id: _, userId: __, ...updateData } = updates;
+  const updateData = Object.fromEntries(
+    Object.entries(updates).filter(([key]) => key !== 'id' && key !== 'userId')
+  );
   
   const result = await collection.updateOne(
     { _id: new ObjectId(id), userId },

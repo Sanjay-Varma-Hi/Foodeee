@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
+import NextAuth from 'next-auth';
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import clientPromise from '@/lib/db/clientPromise';
@@ -11,7 +11,7 @@ if (!process.env.NEXTAUTH_SECRET) {
   throw new Error('Missing NEXTAUTH_SECRET');
 }
 
-export const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -32,7 +32,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      if (session?.user) {
+      if (session?.user && token.sub) {
         session.user.id = token.sub;
       }
       return session;
@@ -49,7 +49,6 @@ export const authOptions: NextAuthOptions = {
     error: '/auth/error',
   },
   debug: process.env.NODE_ENV === 'development',
-};
+});
 
-const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST }; 
