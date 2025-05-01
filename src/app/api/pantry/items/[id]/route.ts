@@ -1,17 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { updateIngredient, deleteIngredient } from '@/lib/db/pantry';
 import { connectDB } from '@/lib/db/connect';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 // PATCH to update a specific pantry item
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   
   if (!session?.user?.id) {
@@ -46,7 +43,10 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 }
 
 // DELETE to remove a specific pantry item
-export async function DELETE(_request: Request, { params }: RouteParams) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   
   if (!session?.user?.id) {
