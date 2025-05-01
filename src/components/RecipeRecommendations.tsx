@@ -2,15 +2,19 @@
                                                                                   
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import React from 'react';
+import Image from 'next/image';
 
 interface Recipe {
   id: string;
   title: string;
   description: string;
   image: string;
-  ingredients: string[];
+  ingredients: Array<string | {
+    name: string;
+    quantity?: number;
+    unit?: string;
+  }>;
   cookTime: number;
   difficulty: 'easy' | 'medium' | 'hard';
   matchScore: number;
@@ -55,8 +59,8 @@ export default function RecipeRecommendations() {
       try {
         const parsedIngredients = JSON.parse(savedIngredients);
         setPantryIngredients(parsedIngredients);
-      } catch {
-        console.error('Failed to parse saved ingredients');
+      } catch (err) {
+        console.error('Failed to parse saved ingredients', err);
       }
     }
     setPantryChecked(true);
@@ -69,8 +73,8 @@ export default function RecipeRecommendations() {
       if (savedIngredients) {
         try {
           setPantryIngredients(JSON.parse(savedIngredients));
-        } catch {
-          console.error('Failed to parse saved ingredients');
+        } catch (err) {
+          console.error('Failed to parse saved ingredients', err);
         }
       } else {
         setPantryIngredients([]);
@@ -302,8 +306,13 @@ export default function RecipeRecommendations() {
                 <div className="mb-2">
                   <h4 className="text-sm font-semibold text-gray-900 mb-1">Ingredients:</h4>
                   <ul className="list-disc list-inside text-gray-700 text-sm">
-                    {Array.isArray(recipe.ingredients) && recipe.ingredients.map((ingredient: string, idx: number) => (
-                      <li key={idx}>{ingredient}</li>
+                    {Array.isArray(recipe.ingredients) && recipe.ingredients.map((ingredient, idx) => (
+                      <li key={idx}>
+                        {typeof ingredient === 'string' 
+                          ? ingredient 
+                          : `${ingredient.name}${ingredient.quantity ? ` (${ingredient.quantity}${ingredient.unit ? ' ' + ingredient.unit : ''})` : ''}`
+                        }
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -353,8 +362,13 @@ export default function RecipeRecommendations() {
               </div>
               <h4 className="text-md font-semibold text-gray-900 mt-4 mb-1">Ingredients:</h4>
               <ul className="list-disc list-inside text-gray-700 mb-4">
-                {selectedRecipe.ingredients.map((ingredient: string, idx: number) => (
-                  <li key={idx}>{ingredient}</li>
+                {selectedRecipe.ingredients.map((ingredient, idx) => (
+                  <li key={idx}>
+                    {typeof ingredient === 'string' 
+                      ? ingredient 
+                      : `${ingredient.name}${ingredient.quantity ? ` (${ingredient.quantity}${ingredient.unit ? ' ' + ingredient.unit : ''})` : ''}`
+                    }
+                  </li>
                 ))}
               </ul>
               {/* Recipe Instructions */}
