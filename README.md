@@ -1,40 +1,148 @@
-<<<<<<< HEAD
-# Foodeee
-=======
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Food Bot - Smart Pantry Management System
 
-## Getting Started
+A Next.js application that helps users manage their pantry inventory, track ingredients, and get recipe suggestions based on available items.
 
-First, run the development server:
+## 🚀 Features
 
+- Google Authentication for secure user access
+- MongoDB database for storing user data and pantry items
+- Real-time pantry inventory management
+- User profile management
+- Custom instructions for personalized experience
+- Modern UI with Tailwind CSS
+- TypeScript for type safety
+- React Query for efficient data fetching
+
+## 🛠️ Tech Stack
+
+- **Frontend Framework**: Next.js 15.3.1
+- **Language**: TypeScript
+- **Authentication**: NextAuth.js with Google Provider
+- **Database**: MongoDB with Mongoose
+- **Styling**: Tailwind CSS
+- **State Management**: React Query
+- **HTTP Client**: Axios
+- **Development Tools**: ESLint, TypeScript
+
+## 📋 Prerequisites
+
+- Node.js (v18 or higher)
+- MongoDB database
+- Google Cloud Platform account (for OAuth)
+- npm or yarn package manager
+
+## 🔧 Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# MongoDB
+MONGODB_URI=your_mongodb_connection_string
+
+# NextAuth
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+## 🚀 Getting Started
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd food_bot
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your credentials
+```
+
+4. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   │   ├── pantry/       # Pantry management endpoints
+│   │   ├── user-profile/ # User profile endpoints
+│   │   └── auth/         # Authentication endpoints
+│   └── (routes)/         # Frontend routes
+├── components/            # React components
+├── lib/                   # Utility functions and configurations
+│   ├── auth/             # Authentication setup
+│   ├── db/               # Database configurations
+│   └── utils/            # Helper functions
+└── types/                # TypeScript type definitions
+```
 
-## Learn More
+## 🔄 API Endpoints
 
-To learn more about Next.js, take a look at the following resources:
+### Authentication
+- `POST /api/auth/signin` - Sign in with Google
+- `POST /api/auth/signout` - Sign out
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Pantry Management
+- `GET /api/pantry/items` - Get all pantry items
+- `POST /api/pantry/items` - Add new pantry item
+- `PATCH /api/pantry/items/[id]` - Update pantry item
+- `DELETE /api/pantry/items/[id]` - Delete pantry item
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### User Profile
+- `GET /api/user-profile` - Get user profile
+- `PATCH /api/user-profile` - Update user profile
 
-## Deploy on Vercel
+## 🛠️ Development Commands
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Run development server
+npm run dev
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
->>>>>>> 4a97d0d (Initial commit from Create Next App)
+# Build for production
+npm run build
+
+# Start production server
+npm run start
+
+# Run linter
+npm run lint
+```
+
+## 🔒 Security
+
+- All API routes are protected with NextAuth.js
+- MongoDB connection is secured with environment variables
+- Google OAuth provides secure authentication
+- TypeScript ensures type safety
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -1,7 +1,7 @@
 'use client';
                                                                                   
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+// import Link from 'next/link';
 import React from 'react';
 import Image from 'next/image';
 
@@ -270,7 +270,7 @@ export default function RecipeRecommendations() {
         </div>
       )}
 
-      {/* Empty State - No Pantry Ingredients */}
+      {/* Empty State - No Pantry Ingredients
       {!loading && isPantryEmpty && (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">Your pantry is empty. Add ingredients to get personalized recipe recommendations!</p>
@@ -281,7 +281,7 @@ export default function RecipeRecommendations() {
             Add Ingredients
           </Link>
         </div>
-      )}
+      )} */}
 
       {/* Empty State - Has Ingredients but No Recipes */}
       {!loading && !isPantryEmpty && recipes.length === 0 && (
