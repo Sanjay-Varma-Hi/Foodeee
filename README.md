@@ -1,4 +1,4 @@
-# Food Bot - Smart Pantry Management System
+# Foodeee - Smart Pantry Management System
 
 A Next.js application that helps users manage their pantry inventory, track ingredients, and get recipe suggestions based on available items.
 
