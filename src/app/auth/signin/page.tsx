@@ -3,14 +3,9 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import SignInButton from '@/components/SignInButton';
 
-interface PageProps {
-  searchParams: {
-    error?: string;
-    callbackUrl?: string;
-  };
-}
-
-export default async function SignIn({ searchParams }: PageProps) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function SignIn(props: any) {
+  const { searchParams } = props;
   const session = await getServerSession(authOptions);
 
   if (session) {

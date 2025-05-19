@@ -6,8 +6,7 @@ import { connectDB } from '@/lib/db/connect';
 
 // PATCH to update a specific pantry item
 export async function PATCH(
-  request: NextRequest,
-  context: { params: { id: string } }
+  request: NextRequest
 ): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   
@@ -17,7 +16,9 @@ export async function PATCH(
 
   try {
     await connectDB();
-    const { id } = context.params;
+    // Extract id from the URL
+    const pathParts = request.nextUrl.pathname.split('/');
+    const id = pathParts[pathParts.length - 1];
     const updates = await request.json();
     
     const success = await updateIngredient(id, session.user.id, updates);
@@ -44,8 +45,7 @@ export async function PATCH(
 
 // DELETE to remove a specific pantry item
 export async function DELETE(
-  request: NextRequest,
-  context: { params: { id: string } }
+  request: NextRequest
 ): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   
@@ -55,7 +55,9 @@ export async function DELETE(
 
   try {
     await connectDB();
-    const { id } = context.params;
+    // Extract id from the URL
+    const pathParts = request.nextUrl.pathname.split('/');
+    const id = pathParts[pathParts.length - 1];
     const success = await deleteIngredient(id, session.user.id);
     
     if (!success) {

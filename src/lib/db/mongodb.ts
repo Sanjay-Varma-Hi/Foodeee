@@ -11,14 +11,17 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
+// Extend the global type
 declare global {
-  let mongoose: MongooseCache;
+  // eslint-disable-next-line no-var
+  var mongoose: MongooseCache | undefined;
 }
 
-let cached = global.mongoose;
+// Initialize the cache
+const cached = global.mongoose || { conn: null, promise: null };
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+if (!global.mongoose) {
+  global.mongoose = cached;
 }
 
 async function dbConnect(): Promise<typeof mongoose> {
